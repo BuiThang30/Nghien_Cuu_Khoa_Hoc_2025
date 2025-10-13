@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCKH-2025</title>
     <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <nav class="navbar">
@@ -19,22 +21,166 @@
     </nav>
 
     <!-- content -->
-    <div class="content">
-      <div id="home">
-        <h2>Trang chủ</h2>
-        <p>Nội dung trang chủ...</p>
+    <div class="container">
+      <div id="map"></div>
+
+      <div class="controls">
+        <!-- Cột đèn + input -->
+        <div class="lights">
+          <div class="light-row">
+            <div class="light red"></div>
+            <input id="redTime" type="number" placeholder="Đỏ (s)" />
+          </div>
+          <div class="light-row">
+            <div class="light yellow"></div>
+            <input id="yellowTime" type="number" placeholder="Vàng (s)" />
+          </div>
+          <div class="light-row">
+            <div class="light green"></div>
+            <input id="greenTime" type="number" placeholder="Xanh (s)" />
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="saveBtn">Lưu</button>
+          <button id="editBtn">Sửa</button>
+          <button id="deleteBtn">Xóa</button>
+        </div>
+
+        <div class="search">
+          <label for="searchInput">Tìm kiếm</label>
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="Nhập tên địa điểm..." />
+            <div id="suggestionList" class="suggestions"></div>
+            <button id="confirmBtn">Xác nhận</button>
+          </div>
+        </div>
       </div>
 
-      <div id="control">
-        <h2>Điều khiển</h2>
-        <p>Nội dung điều khiển...</p>
-      </div>
+      <!--Parameter-->
+      <div id="parameter" class="parameter">
+        <!-- Temperature -->
+        <div class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">Temperature</h3>
+              <h1 id="tempValue" class="temp">-- °C</h1>
+              <p id="statusTemp" class="status">--</p>
+            </div>
 
-      <div id="chart">
-        <h2>Biểu đồ</h2>
-        <p>Nội dung biểu đồ...</p>
+            <div class="center">
+              <canvas id="chartTemp"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="tempMax">-- °C</span></p>
+              <p>Min <span id="tempMin">-- °C</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">Humidity</h3>
+              <h1 id="humValue" class="temp">-- %</h1>
+              <p id="statusHumidity" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartHumidity"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="humMax">-- %</span></p>
+              <p>Min <span id="humMin">-- %</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CO2 -->
+        <div class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">CO2</h3>
+              <h1 id="co2Value" class="temp">-- PPM</h1>
+              <p id="statusCO2" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartCO2"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="co2Max">-- PPM</span></p>
+              <p>Min <span id="co2Min">-- PPM</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PM1.0 -->
+        <div class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">PM1.0</h3>
+              <h1 id="pm1Value" class="temp">-- μg/m³</h1>
+              <p id="statusPM1" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartPM1"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="pm1Max">-- μg/m³</span></p>
+              <p>Min <span id="pm1Min">-- μg/m³</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PM2.5 -->
+        <div class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">PM2.5</h3>
+              <h1 id="pm25Value" class="temp">-- μg/m³</h1>
+              <p id="statusPM25" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartPM25"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="pm25Max">-- μg/m³</span></p>
+              <p>Min <span id="pm25Min">-- μg/m³</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PM10 -->
+        <div class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">PM10</h3>
+              <h1 id="pm10Value" class="temp">-- μg/m³</h1>
+              <p id="statusPM10" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartPM10"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="pm10Max">-- μg/m³</span></p>
+              <p>Min <span id="pm10Min">-- μg/m³</span></p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

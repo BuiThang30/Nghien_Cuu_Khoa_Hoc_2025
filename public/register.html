@@ -7,7 +7,41 @@
     <link rel="stylesheet" href="register.css">
   </head>
   <body>
-    
+    <div class="container">
+      <div class="form-box">
+        <h2>Tạo một tài khoản mới</h2>
+        <form>
+          <div class="name-group">
+            <div class="input-box">
+              <label>Họ</label>
+              <input type="text" required>
+            </div>
+            <div class="input-box">
+              <label>Tên</label>
+              <input type="text" required>
+            </div>
+          </div>
+
+          <div class="input-box">
+            <label>Email</label>
+            <input type="email" required>
+          </div>
+
+          <div class="input-box">
+            <label>Mật khẩu</label>
+            <input type="password" required>
+          </div>
+
+          <div class="input-box">
+            <label>Xác nhận mật khẩu</label>
+            <input type="password" required>
+          </div>
+
+          <button type="submit" class="btn">Đăng ký</button>
+        </form>
+        <a href="/login" class="login-link">Bạn đã có tài khoản?</a>
+      </div>
+    </div>
     <script src="script.js"></script>
   </body>
 </html>

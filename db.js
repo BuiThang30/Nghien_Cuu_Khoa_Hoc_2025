@@ -24,7 +24,7 @@ db.serialize(() => {
       pm1_0 REAL,
       pm2_5 REAL,
       pm10 REAL,
-      noise_level REAL,
+      noise REAL,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);

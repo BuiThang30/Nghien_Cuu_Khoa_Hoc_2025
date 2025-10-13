@@ -9,9 +9,9 @@ let latestSensorData = {};
 router.post("/data", (req, res) => {
   try {
     const {
-      location_id = null,
       temperature,
       humidity,
+      co2,
       pm1_0,
       pm2_5,
       pm10,
@@ -21,6 +21,7 @@ router.post("/data", (req, res) => {
     if (
       temperature === undefined ||
       humidity === undefined ||
+      co2 === undefined ||
       pm1_0 === undefined ||
       pm2_5 === undefined ||
       pm10 === undefined ||
@@ -29,11 +30,10 @@ router.post("/data", (req, res) => {
       return res.status(400).json({ message: "❌ Thiếu dữ liệu cảm biến!" });
     }
 
-    // Cập nhật dữ liệu mới nhất
     latestSensorData = {
-      location_id,
       temperature,
       humidity,
+      co2,
       pm1_0,
       pm2_5,
       pm10,
@@ -43,12 +43,11 @@ router.post("/data", (req, res) => {
 
     console.log("📥 Nhận dữ liệu cảm biến:", latestSensorData);
 
-    // --- Lưu vào CSDL ---
     db.run(
       `INSERT INTO sensors(
-        location_id, temperature, humidity, pm1_0, pm2_5, pm10, noise
+        temperature, humidity, co2, pm1_0, pm2_5, pm10, noise
       ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [location_id, temperature, humidity, pm1_0, pm2_5, pm10, noise],
+      [temperature, humidity, co2, pm1_0, pm2_5, pm10, noise],
       function (err) {
         if (err) {
           console.error("❌ Lỗi khi lưu dữ liệu:", err.message);
@@ -91,6 +90,44 @@ router.get("/history", (req, res) => {
       res.json(rows);
     }
   );
+});
+
+// --- API trả về giá trị Min/Max ---
+router.get("/minmax", (req, res) => {
+  const query = `
+    SELECT
+      MIN(temperature) AS temp_min, MAX(temperature) AS temp_max,
+      MIN(humidity) AS hum_min, MAX(humidity) AS hum_max,
+      MIN(co2) AS co2_min, MAX(co2) AS co2_max,
+      MIN(pm1_0) AS pm1_min, MAX(pm1_0) AS pm1_max,
+      MIN(pm2_5) AS pm25_min, MAX(pm2_5) AS pm25_max,
+      MIN(pm10) AS pm10_min, MAX(pm10) AS pm10_max,
+      MIN(noise) AS noise_min, MAX(noise) AS noise_max
+    FROM sensors
+  `;
+
+  db.get(query, [], (err, row) => {
+    if (err) {
+      console.error("❌ Lỗi khi truy vấn min/max:", err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!row) {
+      return res.json({ message: "Chưa có dữ liệu cảm biến!" });
+    }
+
+    const result = {
+      temperature: { min: row.temp_min, max: row.temp_max },
+      humidity: { min: row.hum_min, max: row.hum_max },
+      co2: { min: row.co2_min, max: row.co2_max },
+      pm1: { min: row.pm1_min, max: row.pm1_max },
+      pm25: { min: row.pm25_min, max: row.pm25_max },
+      pm10: { min: row.pm10_min, max: row.pm10_max },
+      noise: { min: row.noise_min, max: row.noise_max },
+    };
+
+    res.json(result);
+  });
 });
 
 module.exports = router;

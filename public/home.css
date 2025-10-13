@@ -9,6 +9,7 @@
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
 }
+
 body {
   margin: 0;
   background-color: #7EC5FF;
@@ -49,9 +50,37 @@ body {
   align-items: center;
 }
 
+/* ======== Nút menu hamburger ======== */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.menu-toggle span {
+  width: 28px;
+  height: 3px;
+  background-color: #000;
+  margin: 4px 0;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi mở menu */
+.menu-toggle.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 .container {
-  width: 95%;
-  max-width: 1200px;
+  max-width: 80%;
   background: #7EC5FF;
   border-radius: 20px;
   display: flex;
@@ -64,114 +93,134 @@ body {
 #map {
   height: 250px;
   border-radius: 12px;
+  width: 100%;
 }
 
 .controls {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: stretch;
+  justify-content: space-between;
   background: #7ec5ff;
   border-radius: 20px;
-  padding: 10px 15px;
-  gap: 15px;
-  width: fit-content;
+  padding: 20px 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-/* Cột đèn */
+/* --- 3 cột có tỉ lệ riêng --- */
 .lights {
+  flex: 0 0 20%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 15px;
   background: #e8f4ff;
-  padding: 8px;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  box-sizing: border-box;
 }
+
+.buttons {
+  flex: 0 0 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #e8f4ff;
+  padding: 20px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.search {
+  flex: 0 0 68%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  background: #e8f4ff;
+  padding: 20px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+/* ========== NỘI DUNG BÊN TRONG ========== */
 
 .light-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
 .light {
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 1px solid #888;
+  border: 2px solid #888;
 }
 .red { background-color: red; }
 .yellow { background-color: yellow; }
 .green { background-color: limegreen; }
 
 .lights input {
-  width: 70px;
-  padding: 4px 6px;
+  width: 100px;
+  padding: 8px 10px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 10px;
+  font-size: 15px;
   text-align: center;
   outline: none;
 }
 
-/* Cột nút */
-.buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  background: #e8f4ff;
-  padding: 8px;
-  border-radius: 12px;
-}
-
+/* --- Cột nút --- */
 .buttons button {
   background-color: white;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 4px 10px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.search {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #e8f4ff;
-  padding: 10px;
   border-radius: 12px;
+  width: 100%;
+  height: 45px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
+.buttons button:hover {
+  background-color: #dfefff;
+}
+
+/* --- Cột tìm kiếm --- */
 .search label {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
 }
 
 .search-box {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   position: relative;
 }
 
 .search-box input {
   border: none;
   border-radius: 20px;
-  padding: 8px 12px;
-  width: 180px;
+  padding: 12px 16px;
+  width: 100%;
   outline: none;
-  font-size: 13px;
+  font-size: 16px;
+  background: #dcdcdc;
 }
 
 #confirmBtn {
   background-color: #7EC5FF;
   border: none;
   border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 12px 16px;
+  font-size: 16px;
   cursor: pointer;
   color: white;
+  transition: 0.2s;
 }
 
 #confirmBtn:hover {
@@ -180,9 +229,9 @@ body {
 
 .suggestions {
   position: absolute;
-  top: 70px;
+  top: 90px;
   width: 100%;
-  background: black;
+  background: #000;
   color: white;
   border-radius: 8px;
   max-height: 180px;
@@ -192,13 +241,14 @@ body {
 }
 
 .suggestions div {
-  padding: 8px;
+  padding: 10px;
   cursor: pointer;
 }
 
 .suggestions div:hover {
   background-color: #444;
 }
+
 
 .parameter{
   text-align: center;
@@ -249,4 +299,204 @@ body {
 .status {
   font-size: 14px;
   color: #b36b00;
+}
+
+
+/* ===================== RESPONSIVE ===================== */
+
+/* --- Laptop trung bình (tối đa 1200px) --- */
+@media (max-width: 1300px) {
+  .container {
+    max-width: 90%;
+  }
+
+  .controls {
+    gap: 15px;
+  }
+
+  .lights {
+    flex: 0 0 22%;
+  }
+
+  .buttons {
+    flex: 0 0 12%;
+  }
+
+  .search {
+    flex: 0 0 64%;
+  }
+
+  .card {
+    height: 280px;
+  }
+
+  .temp {
+    font-size: 26px;
+  }
+}
+
+/* --- Laptop nhỏ / Tablet lớn (tối đa 1024px) --- */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 92%;
+    padding: 15px;
+  }
+
+  .controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .lights,
+  .buttons,
+  .search {
+    flex: 1 1 45%;
+  }
+
+  .lights {
+    order: 1;
+  }
+  .buttons {
+    order: 2;
+  }
+  .search {
+    order: 3;
+  }
+
+  .card {
+    height: auto;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .left, .center, .right {
+    width: 100%;
+  }
+
+  .temp {
+    font-size: 24px;
+  }
+}
+
+/* --- Tablet (tối đa 768px) --- */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .nav-left,
+  .nav-right {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background: #fff;
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+  }
+
+  .navbar.active .nav-left,
+  .navbar.active .nav-right {
+    display: flex;
+  }
+
+  .navbar {
+    flex-wrap: wrap;
+  }
+
+  .navbar a {
+    padding: 10px 20px;
+    width: 100%;
+    border-bottom: 1px solid #eee;
+  }
+
+  .navbar a:last-child {
+    border-bottom: none;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .lights,
+  .buttons,
+  .search {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .light-row {
+    flex: 1 1 45%;
+    justify-content: center;
+  }
+
+  .card {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .temp {
+    font-size: 22px;
+  }
+}
+
+/* --- Mobile (tối đa 480px) --- */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .menu-toggle { width: 40px; height: 40px; }
+  .menu-toggle span { width: 22px; height: 2.5px; }
+  .navbar a { font-size: 13px; margin: 4px 0; }
+
+  .lights {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .light {
+    width: 30px;
+    height: 30px;
+  }
+
+  .lights input {
+    width: 80px;
+    font-size: 14px;
+  }
+
+  .buttons button {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .search label {
+    font-size: 16px;
+  }
+
+  .search-box input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  #confirmBtn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .parameter .title {
+    font-size: 18px;
+  }
+
+  .temp {
+    font-size: 20px;
+  }
+
+  .card {
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
 }

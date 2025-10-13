@@ -1,5 +1,5 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./database.db');
+const sqlite3 = require("sqlite3").verbose();
+const db = new sqlite3.Database("./database.db");
 
 db.serialize(() => {
   // Bảng người dùng
@@ -14,13 +14,12 @@ db.serialize(() => {
     )
   `);
 
-  // Bảng dữ liệu cảm biến
   db.run(`
     CREATE TABLE IF NOT EXISTS sensors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      location_id INTEGER,
       temperature REAL,
       humidity REAL,
+      co2 REAL,
       pm1_0 REAL,
       pm2_5 REAL,
       pm10 REAL,
@@ -29,7 +28,6 @@ db.serialize(() => {
     )
   `);
 
-  // Bảng đèn giao thông
   db.run(`
     CREATE TABLE IF NOT EXISTS traffic_lights (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +39,6 @@ db.serialize(() => {
     )
   `);
 
-  // Bảng ảnh lưu lượng xe
   db.run(`
     CREATE TABLE IF NOT EXISTS traffic_images (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,8 +47,6 @@ db.serialize(() => {
       captured_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
-  console.log("✅ Database initialized successfully.");
 });
 
-db.close();
+module.exports = { db };

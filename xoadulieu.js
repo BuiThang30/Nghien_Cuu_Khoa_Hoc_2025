@@ -1,12 +1,18 @@
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./database.db");
+// reset-db.js
+const fs = require('fs');
+const path = require('path');
 
-db.run("DELETE FROM sensors", function (err) {
-  if (err) {
-    console.error("❌ Lỗi khi xóa dữ liệu:", err.message);
-  } else {
-    console.log(`🧹 Đã xóa toàn bộ dữ liệu trong bảng sensors.`);
-  }
+// Đường dẫn tới file cơ sở dữ liệu
+const dbPath = path.join(__dirname, 'database.db');
 
-  db.close();
-});
+// Xóa file database nếu tồn tại
+if (fs.existsSync(dbPath)) {
+  fs.unlinkSync(dbPath);
+  console.log('🗑️  Đã xóa toàn bộ cơ sở dữ liệu cũ!');
+} else {
+  console.log('⚠️  Không có file database cũ để xóa.');
+}
+
+// Gọi lại db.js để tạo mới
+console.log('🚀 Đang tạo lại cơ sở dữ liệu...');
+require('./db');

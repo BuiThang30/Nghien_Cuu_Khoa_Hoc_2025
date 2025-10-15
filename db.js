@@ -47,6 +47,17 @@ db.serialize(() => {
       captured_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS pi_data (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      count INTEGER,
+      time_green TEXT,
+      time_red TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 });
 
 module.exports = { db };

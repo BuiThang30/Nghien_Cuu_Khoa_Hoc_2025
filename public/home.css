@@ -5,6 +5,10 @@
   font-style: normal;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
@@ -15,68 +19,76 @@ body {
   background-color: #7EC5FF;
 }
 
+/* ====== NAVBAR CHUNG ====== */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #fff;
   border-bottom: 1px solid #ccc;
-  padding: 8px 20px;
+  padding: 10px 20px;
   position: sticky;
   top: 0;
+  z-index: 3000;
+  height: 60px;
 }
 
+/* --- Container chính --- */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* --- Link chung --- */
 .navbar a {
   text-decoration: none;
   color: #000;
   margin: 0 10px;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   position: relative;
-}
-
-.nav-left a:not(:last-child)::after {
-  content: "|";
-  position: absolute;
-  right: -15px;
-  color: #999;
+  transition: color 0.2s ease;
 }
 
 .navbar a:hover {
   color: #007bff;
 }
 
-.nav-left, .nav-right {
+.nav-left a:not(:last-child)::after {
+  content: "|";
+  position: absolute;
+  right: -14px;
+  color: #999;
+}
+
+/* --- Nhóm trái & phải --- */
+.nav-left,
+.nav-right {
   display: flex;
   align-items: center;
 }
 
-/* ======== Nút menu hamburger ======== */
+/* --- Nút menu mobile --- */
 .menu-toggle {
   display: none;
-  flex-direction: column;
-  justify-content: center;
+  font-size: 26px;
+  color: #000;
   cursor: pointer;
-  padding: 6px;
+  padding: 8px 12px;
+  user-select: none;
 }
 
-.menu-toggle span {
-  width: 28px;
-  height: 3px;
-  background-color: #000;
-  margin: 4px 0;
-  border-radius: 2px;
-  transition: all 0.3s ease;
+
+/* --- FIX MAP ĐÈ MENU --- */
+.leaflet-container {
+  z-index: 1 !important;
 }
 
-/* Hiệu ứng khi mở menu */
-.menu-toggle.active span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-.menu-toggle.active span:nth-child(2) {
-  opacity: 0;
-}
-.menu-toggle.active span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+#control,
+#chart {
+  scroll-margin-top: 70px;
 }
 
 .container {
@@ -91,9 +103,10 @@ body {
 }
 
 #map {
-  height: 250px;
+  height: 57vh;
   border-radius: 12px;
   width: 100%;
+  scroll-margin-top: 70px;
 }
 
 .controls {
@@ -191,7 +204,7 @@ body {
 
 /* --- Cột tìm kiếm --- */
 .search label {
-  font-size: 18px;
+  font-size: 30px;
   font-weight: bold;
 }
 
@@ -229,12 +242,12 @@ body {
 
 .suggestions {
   position: absolute;
-  top: 90px;
+  top: 45px;
   width: 100%;
   background: #000;
   color: white;
   border-radius: 8px;
-  max-height: 180px;
+  max-height: 80px;
   overflow-y: auto;
   display: none;
   z-index: 10;
@@ -254,7 +267,6 @@ body {
   text-align: center;
   background-color: #7EC5FF;
   color: #fff;
-  margin-top: 10px;
   font-family: Arial, sans-serif;
 }
 .box{
@@ -381,37 +393,52 @@ body {
 
 /* --- Tablet (tối đa 768px) --- */
 @media (max-width: 768px) {
-  .menu-toggle {
+ .menu-toggle {
+    display: block;
+  }
+
+  /* Ẩn menu mặc định */
+  .nav-container {
+    display: none;
+    flex-direction: column;
+    background: white;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+    z-index: 999;
+  }
+
+  /* Khi active thì hiện */
+  .nav-container.active {
     display: flex;
   }
 
   .nav-left,
   .nav-right {
-    display: none;
     flex-direction: column;
+    align-items: center;
     width: 100%;
-    background: #fff;
-    padding: 10px 0;
-    border-top: 1px solid #ddd;
   }
 
-  .navbar.active .nav-left,
-  .navbar.active .nav-right {
-    display: flex;
-  }
-
-  .navbar {
-    flex-wrap: wrap;
-  }
-
-  .navbar a {
-    padding: 10px 20px;
+  .nav-left a,
+  .nav-right a {
+    color: black;
+    padding: 12px 0;
     width: 100%;
-    border-bottom: 1px solid #eee;
+    text-align: center;
+    border-top: 1px solid #222;
   }
 
-  .navbar a:last-child {
-    border-bottom: none;
+  .nav-left a:first-child {
+    border-top: none;
+  }
+
+  .nav-left a:hover,
+  .nav-right a:hover {
+    background: #007bff;
+    color: #fff;
   }
 
   .controls {
@@ -474,7 +501,7 @@ body {
   }
 
   .search label {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .search-box input {

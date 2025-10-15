@@ -5,21 +5,24 @@ const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(express.json()); // để nhận JSON từ ESP gửi lên
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Import routes
 const sensorsRoutes = require("./routes/sensors");
-app.use("/api/sensors", sensorsRoutes);
+const pidataRoutes = require("./routes/pidata");
 
-// Route động cho các trang html
+// Gắn route
+app.use("/api/sensors", sensorsRoutes);
+app.use("/api/pidata", pidataRoutes);
+
+// Route động cho các trang HTML
 app.get("/:page", (req, res) => {
   const page = req.params.page;
   const filePath = path.join(__dirname, "public", `${page}.html`);
-
   res.sendFile(filePath, (err) => {
     if (err) {
-      res.status(404).send("❌ Trang không tồn tại!");
+      res.status(404).send(" Trang không tồn tại!");
     }
   });
 });
@@ -31,5 +34,5 @@ app.get("/", (req, res) => {
 
 // Khởi động server
 app.listen(PORT, () => {
-  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
+  console.log(` Server chạy tại http://localhost:${PORT}`);
 });

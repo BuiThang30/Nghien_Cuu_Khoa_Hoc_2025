@@ -20,44 +20,85 @@ function register() {
 // NAV TOGGLE
 // =========================
 
-  const menuToggle = document.getElementById("menuToggle");
-  const navbar = document.querySelector(".navbar");
-  const menuLinks = navbar.querySelectorAll("a");
+  const menuToggle = document.getElementById("mobile-menu");
+  const navContainer = document.getElementById("nav-container");
+  const navLinks = navContainer.querySelectorAll("a");
 
-  // Bật / tắt menu khi bấm vào icon
   menuToggle.addEventListener("click", () => {
-    menuToggle.classList.toggle("active");
-    navbar.classList.toggle("active");
+    navContainer.classList.toggle("active");
   });
 
-  // Khi bấm vào bất kỳ link nào -> tự đóng menu
-  menuLinks.forEach(link => {
+  navLinks.forEach(link => {
     link.addEventListener("click", () => {
-      menuToggle.classList.remove("active");
-      navbar.classList.remove("active");
+      navContainer.classList.remove("active");
     });
   });
 
 // =========================
 // BẢN ĐỒ GIAO THÔNG (Leaflet)
 // =========================
+
+// ===== Danh sách các ngã tư =====
 const locations = [
-  { name: "Ngã Tư Sở", lat: 21.003369, lng: 105.823150 },
-  { name: "Ngã Tư Trần Bình Trọng", lat: 21.024330, lng: 105.847960 },
-  { name: "Ngã Tư Viện Nhi", lat: 21.024780, lng: 105.799870 },
-  { name: "Ngã Tư Cầu Giấy", lat: 21.036830, lng: 105.800520 },
-  { name: "Ngã Tư Kim Mã", lat: 21.031250, lng: 105.816810 },
-  { name: "Ngã Tư Láng Hạ", lat: 21.015980, lng: 105.813420 },
-  { name: "Ngã Tư Trung Kính", lat: 21.017940, lng: 105.799110 },
-  { name: "Ngã Tư Chùa Bộc", lat: 21.007900, lng: 105.825630 },
+  { name: "Ngã Tư Sở", lat: 21.003160, lng: 105.820216 },
+  { name: "Ngã Tư Viện Nhi", lat: 21.026209, lng: 105.810259 },
+  { name: "Ngã Tư Cầu Giấy", lat: 21.030024, lng: 105.801724 },
+  { name: "Ngã Tư Kim Mã", lat: 21.030298, lng: 105.812933 },
+  { name: "Ngã Tư Nguyễn Chí Thanh", lat: 21.019907, lng: 105.808252 },
+  { name: "Ngã Tư Trung Kính", lat: 21.014273, lng: 105.795668 },
+  { name: "Ngã Tư Chùa Bộc", lat: 21.009353, lng: 105.824337 },
 ];
 
-let map = L.map("map").setView([21.028511, 105.804817], 13);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+// ===== Khởi tạo bản đồ =====
+const defaultLocation = locations[0];
+const map = L.map("map", {
+  minZoom: 10,
   maxZoom: 19,
-  attribution: "© OpenStreetMap",
+}).setView([defaultLocation.lat, defaultLocation.lng], 18);
+
+// ===== Dùng tile chất lượng cao (HOT style) =====
+L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "© OpenStreetMap contributors | HOT layer",
 }).addTo(map);
-let marker = L.marker([21.028511, 105.804817]).addTo(map);
+
+// ===== Thêm marker cho danh sách ngã tư =====
+const markers = {};
+
+locations.forEach((loc) => {
+  const marker = L.marker([loc.lat, loc.lng])
+    .addTo(map)
+    .bindPopup(`<b>${loc.name}</b>`, {
+      autoClose: false,
+      closeOnClick: false,
+    })
+    .openPopup(); // ✅ Mở tất cả popup ngay khi khởi tạo
+
+  marker.on("click", () => {
+    map.flyTo([loc.lat, loc.lng], 18);
+    marker.openPopup();
+    searchInput.value = loc.name;
+    suggestionList.style.display = "none";
+    loadData(loc.name);
+    scrollToMap();
+  });
+
+  markers[loc.name] = marker;
+});
+
+// ===== Đảm bảo map hiển thị đúng kích thước và vị trí khi load =====
+setTimeout(() => {
+  map.invalidateSize();
+
+  const def = defaultLocation;
+  const marker = markers[def.name];
+  marker.openPopup();
+
+  map.setView([def.lat, def.lng], 18, { animate: false });
+
+  loadData(def.name);
+  searchInput.value = def.name;
+}, 500);
 
 // --- Gợi ý tìm kiếm ---
 const searchInput = document.getElementById("searchInput");
@@ -75,6 +116,7 @@ searchInput.addEventListener("input", () => {
   const filtered = locations.filter((loc) =>
     loc.name.toLowerCase().includes(keyword)
   );
+
   if (filtered.length === 0) {
     suggestionList.style.display = "none";
     return;
@@ -90,12 +132,21 @@ searchInput.addEventListener("input", () => {
   suggestionList.style.display = "block";
 });
 
+// --- Khi chọn vị trí từ ô tìm kiếm ---
 function selectLocation(loc) {
   searchInput.value = loc.name;
   suggestionList.style.display = "none";
-  map.setView([loc.lat, loc.lng], 16);
-  marker.setLatLng([loc.lat, loc.lng]);
+  map.flyTo([loc.lat, loc.lng], 18);
+  markers[loc.name].openPopup();
+  loadData(loc.name);
+  scrollToMap();
 }
+
+function scrollToMap() {
+  const mapElement = document.getElementById("map");
+  mapElement.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 
 // =========================
 // LƯU / XOÁ THỜI GIAN ĐÈN (localStorage)
@@ -180,15 +231,22 @@ function createChart(canvasId, label, color, min, max) {
   });
 }
 
-function formatTimeUTC7(utcString) {
-  const d = new Date(utcString);
+function formatTimeUTC7(timestamp) {
+  if (!timestamp) return "--";
+  const d = new Date(timestamp.includes("T") ? timestamp : timestamp.replace(" ", "T"));
   d.setHours(d.getHours() + 7);
-  return d.toLocaleTimeString("en-US", {
+
+  const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
+
+  const timePart = d.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
+
+  return `${weekday}, ${timePart}`;
 }
+
 
 const charts = {
   temperature: createChart("chartTemp", "Temperature (°C)", "rgba(255,99,132,1)", 0, 40),

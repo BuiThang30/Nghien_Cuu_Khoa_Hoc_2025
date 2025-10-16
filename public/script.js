@@ -252,10 +252,10 @@ const charts = {
   temperature: createChart("chartTemp", "Temperature (°C)", "rgba(255,99,132,1)", 0, 40),
   humidity: createChart("chartHumidity", "Humidity (%)", "rgba(54,162,235,1)", 0, 100),
   co2: createChart("chartCO2", "CO₂ (ppm)", "rgba(0,200,0,1)", 300, 2000),
-  pm1_0: createChart("chartPM1", "PM1.0 (µg/m³)", "rgba(75,192,192,1)", 0, 1000),
-  pm2_5: createChart("chartPM25", "PM2.5 (µg/m³)", "rgba(153,102,255,1)", 0, 1000),
-  pm10: createChart("chartPM10", "PM10 (µg/m³)", "rgba(255,159,64,1)", 0, 1000),
-  noise: createChart("chartNOISE", "NOISE (dB)", "rgba(255,159,64,1)", 20, 150),
+  pm1_0: createChart("chartPM1", "PM1.0 (µg/m³)", "rgba(75,192,192,1)", 0, 100),
+  pm2_5: createChart("chartPM25", "PM2.5 (µg/m³)", "rgba(153,102,255,1)", 0, 100),
+  pm10: createChart("chartPM10", "PM10 (µg/m³)", "rgba(255,159,64,1)", 0, 100),
+  noise: createChart("chartNOISE", "NOISE (dB)", "rgba(255,159,64,1)", -120, 0),
 };
 
 let lastTimestamp = null;

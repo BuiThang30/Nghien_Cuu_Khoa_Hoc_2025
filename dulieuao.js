@@ -9,11 +9,11 @@ function generateFakeSensorData() {
   return {
     temperature: getRandomFloat(20, 35),
     humidity: getRandomFloat(40, 90),
-    co2: getRandomFloat(350, 1200), // đơn vị ppm
+    co2: getRandomFloat(350, 500), // đơn vị ppm
     pm1_0: getRandomFloat(5, 50),
-    pm2_5: getRandomFloat(10, 80),
-    pm10: getRandomFloat(20, 120),
-    noise: getRandomFloat(40, 90),
+    pm2_5: getRandomFloat(10, 30),
+    pm10: getRandomFloat(5, 30),
+    noise: getRandomFloat(-100, 0),
   };
 }
 

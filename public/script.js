@@ -149,6 +149,29 @@ function scrollToMap() {
 
 
 // =========================
+// NÚT XÁC NHẬN TÌM KIẾM
+// =========================
+function confirmbtn() {
+  const input = searchInput.value.trim().toLowerCase();
+  if (input === "") {
+    alert("Vui lòng nhập tên địa điểm!");
+    return;
+  }
+
+  // Tìm địa điểm có tên khớp (không phân biệt hoa/thường)
+  const loc = locations.find(l => l.name.toLowerCase() === input);
+
+  if (!loc) {
+    alert("Không tìm thấy địa điểm phù hợp!");
+    return;
+  }
+
+  // Giống như chọn gợi ý
+  selectLocation(loc);
+}
+
+
+// =========================
 // LƯU / XOÁ THỜI GIAN ĐÈN (localStorage)
 // =========================
 function getCurrentLocationName() {

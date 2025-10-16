@@ -104,10 +104,35 @@ body {
 
 #map {
   height: 57vh;
-  border-radius: 12px;
   width: 100%;
+  border-radius: 12px;
   scroll-margin-top: 70px;
 }
+
+/* === Bảng nhỏ cạnh marker === */
+.info-box {
+  position: absolute;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  font-size: 13px;
+  pointer-events: none;
+  transform: translate(100px, -130%);
+  white-space: nowrap;
+  z-index: 9999;
+}
+
+.info-box .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+.green { background: #00c853; }
+.red { background: #d50000; }
 
 .controls {
   display: flex;

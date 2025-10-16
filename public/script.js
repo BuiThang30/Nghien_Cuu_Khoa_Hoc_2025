@@ -38,6 +38,10 @@ function register() {
 // BẢN ĐỒ GIAO THÔNG (Leaflet)
 // =========================
 
+// =========================
+// BẢN ĐỒ GIAO THÔNG (Leaflet)
+// =========================
+
 // ===== Danh sách các ngã tư =====
 const locations = [
   { name: "Ngã Tư Sở", lat: 21.003160, lng: 105.820216 },
@@ -56,49 +60,97 @@ const map = L.map("map", {
   maxZoom: 19,
 }).setView([defaultLocation.lat, defaultLocation.lng], 18);
 
-// ===== Dùng tile chất lượng cao (HOT style) =====
 L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "© OpenStreetMap contributors | HOT layer",
 }).addTo(map);
 
-// ===== Thêm marker cho danh sách ngã tư =====
 const markers = {};
+let infoBox; // box đang hiển thị hiện tại
 
-locations.forEach((loc) => {
-  const marker = L.marker([loc.lat, loc.lng])
-    .addTo(map)
-    .bindPopup(`<b>${loc.name}</b>`, {
-      autoClose: false,
-      closeOnClick: false,
-    })
-    .openPopup(); // ✅ Mở tất cả popup ngay khi khởi tạo
+// ===== Lấy dữ liệu từ API =====
+async function getPiData() {
+  try {
+    const res = await fetch("/api/pidata/latest");
+    if (!res.ok) throw new Error("Không thể lấy dữ liệu Pi");
+    return await res.json();
+  } catch (err) {
+    console.error("Lỗi tải dữ liệu Pi:", err);
+    return [];
+  }
+}
 
-  marker.on("click", () => {
-    map.flyTo([loc.lat, loc.lng], 18);
-    marker.openPopup();
-    searchInput.value = loc.name;
-    suggestionList.style.display = "none";
-    loadData(loc.name);
-    scrollToMap();
+// ===== Gắn marker và infoBox =====
+async function attachMarkers() {
+  const piData = await getPiData();
+
+  locations.forEach((loc) => {
+    const marker = L.marker([loc.lat, loc.lng])
+      .addTo(map)
+      .bindPopup(`<b>${loc.name}</b>`, {
+        autoClose: false,
+        closeOnClick: false,
+      });
+
+    markers[loc.name] = marker;
+
+    // === Sự kiện click để hiển thị infoBox ===
+    marker.on("click", () => {
+      map.flyTo([loc.lat, loc.lng], 18);
+      marker.openPopup();
+
+      // Xóa box cũ
+      if (infoBox) map.getPanes().overlayPane.removeChild(infoBox);
+
+      // Dữ liệu Pi tương ứng
+      const d = piData.find((item) => item.location_name === loc.name);
+      if (d) createInfoBox(loc, d);
+    });
   });
 
-  markers[loc.name] = marker;
-});
+  // === Hiển thị box mặc định ngay khi load ===
+  const def = defaultLocation;
+  const defData = piData.find((d) => d.location_name === def.name);
+  if (defData) {
+    const defMarker = markers[def.name];
+    defMarker.openPopup();
+    createInfoBox(def, defData);
+  }
+}
 
-// ===== Đảm bảo map hiển thị đúng kích thước và vị trí khi load =====
+// ===== Hàm tạo infoBox =====
+function createInfoBox(loc, d) {
+  infoBox = document.createElement("div");
+  infoBox.className = "info-box";
+  infoBox.innerHTML = `
+    <b>${loc.name}</b><br>
+    Count: ${d.count}<br>
+    Green: ${d.time_green} <span class="dot green"></span><br>
+    Red: ${d.time_red} <span class="dot red"></span>
+  `;
+
+  const pos = map.latLngToLayerPoint([loc.lat, loc.lng]);
+  infoBox.style.left = `${pos.x + 25}px`; // dịch sang phải 1 chút
+  infoBox.style.top = `${pos.y - 40}px`;
+  map.getPanes().overlayPane.appendChild(infoBox);
+
+  // Di chuyển theo map
+  map.on("move", () => {
+    const newPos = map.latLngToLayerPoint([loc.lat, loc.lng]);
+    infoBox.style.left = `${newPos.x + 25}px`;
+    infoBox.style.top = `${newPos.y - 40}px`;
+  });
+}
+
+attachMarkers();
+
+// ===== Đảm bảo map resize đúng =====
 setTimeout(() => {
   map.invalidateSize();
-
-  const def = defaultLocation;
-  const marker = markers[def.name];
-  marker.openPopup();
-
-  map.setView([def.lat, def.lng], 18, { animate: false });
-
-  loadData(def.name);
-  searchInput.value = def.name;
+  map.setView([defaultLocation.lat, defaultLocation.lng], 18, { animate: false });
 }, 500);
+
+
 
 // --- Gợi ý tìm kiếm ---
 const searchInput = document.getElementById("searchInput");

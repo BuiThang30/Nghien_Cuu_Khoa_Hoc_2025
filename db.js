@@ -52,6 +52,7 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS pi_data (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      location_name TEXT,
       count INTEGER,
       time_green TEXT,
       time_red TEXT,

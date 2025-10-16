@@ -56,9 +56,13 @@ router.get("/select", (req, res) => {
 
 // === API lấy bản ghi mới nhất ===
 router.get("/latest", (req, res) => {
-  db.get("SELECT * FROM pi_data ORDER BY id DESC LIMIT 1", [], (err, row) => {
-    if (err) return res.status(500).json({ message: "Lỗi truy vấn!" });
-    res.json(row || {});
+  db.all(`
+    SELECT location_name, count, time_green, time_red
+    FROM pi_data
+    WHERE id IN (SELECT MAX(id) FROM pi_data GROUP BY location_name)
+  `, (err, rows) => {
+    if (err) res.status(500).json({ error: err.message });
+    else res.json(rows);
   });
 });
 

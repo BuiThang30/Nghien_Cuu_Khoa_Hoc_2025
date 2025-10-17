@@ -305,8 +305,8 @@ function createChart(canvasId, label, color, min, max) {
           label,
           data: [],
           borderColor: color,
-          backgroundColor: color.replace("1)", "0.2)"),
-          fill: true,
+          backgroundColor: color,
+          fill: false,
           tension: 0.3,
           pointRadius: 3,
         },
@@ -320,13 +320,14 @@ function createChart(canvasId, label, color, min, max) {
   });
 }
 
+
+// Hàm định dạng thời gian
 function formatTimeUTC7(timestamp) {
   if (!timestamp) return "--";
   const d = new Date(timestamp.includes("T") ? timestamp : timestamp.replace(" ", "T"));
   d.setHours(d.getHours() + 7);
 
   const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
-
   const timePart = d.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -336,48 +337,100 @@ function formatTimeUTC7(timestamp) {
   return `${weekday}, ${timePart}`;
 }
 
-
+// =========================
+// KHỞI TẠO BIỂU ĐỒ
+// =========================
 const charts = {
   temperature: createChart("chartTemp", "Temperature (°C)", "rgba(255,99,132,1)", 0, 40),
   humidity: createChart("chartHumidity", "Humidity (%)", "rgba(54,162,235,1)", 0, 100),
   co2: createChart("chartCO2", "CO₂ (ppm)", "rgba(0,200,0,1)", 300, 2000),
-  pm1_0: createChart("chartPM1", "PM1.0 (µg/m³)", "rgba(75,192,192,1)", 0, 100),
-  pm2_5: createChart("chartPM25", "PM2.5 (µg/m³)", "rgba(153,102,255,1)", 0, 100),
-  pm10: createChart("chartPM10", "PM10 (µg/m³)", "rgba(255,159,64,1)", 0, 100),
   noise: createChart("chartNOISE", "NOISE (dB)", "rgba(255,159,64,1)", -120, 0),
+
+  // Chart gộp PM
+  pm: (() => {
+    const ctx = document.getElementById("chartPM")?.getContext("2d");
+    if (!ctx) return null;
+
+    return new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "PM1.0",
+            borderColor: "rgba(75,192,192,1)",
+            backgroundColor: "rgba(75,192,192,0.2)",
+            data: [],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 3,
+          },
+          {
+            label: "PM2.5",
+            borderColor: "rgba(153,102,255,1)",
+            backgroundColor: "rgba(153,102,255,0.2)",
+            data: [],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 3,
+          },
+          {
+            label: "PM10",
+            borderColor: "rgba(255,159,64,1)",
+            backgroundColor: "rgba(255,159,64,0.2)",
+            data: [],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { min: 0, max: 100 } },
+      },
+    });
+  })(),
 };
 
 let lastTimestamp = null;
 
 // =========================
-// LỊCH SỬ DỮ LIỆU
+// LOAD LỊCH SỬ
 // =========================
 async function loadHistory() {
   try {
     const res = await fetch("/api/sensors/history");
     const rows = await res.json();
-
     rows.reverse().forEach((r) => {
       const time = formatTimeUTC7(r.timestamp);
+
+      // Các sensor khác
       const mapping = {
         temperature: r.temperature,
         humidity: r.humidity,
         co2: r.co2,
-        pm1_0: r.pm1_0,
-        pm2_5: r.pm2_5,
-        pm10: r.pm10,
         noise: r.noise,
       };
 
-      for (let key in charts) {
+      for (let key in mapping) {
         if (charts[key]) {
           charts[key].data.labels.push(time);
           charts[key].data.datasets[0].data.push(mapping[key]);
         }
       }
+
+      // PM gộp
+      if (charts.pm) {
+        charts.pm.data.labels.push(time);
+        charts.pm.data.datasets[0].data.push(r.pm1_0);
+        charts.pm.data.datasets[1].data.push(r.pm2_5);
+        charts.pm.data.datasets[2].data.push(r.pm10);
+      }
     });
 
-    Object.values(charts).forEach((chart) => chart && chart.update());
+    Object.values(charts).forEach((c) => c && c.update());
     if (rows.length) lastTimestamp = rows[rows.length - 1].timestamp;
   } catch (err) {
     console.error("History error:", err);
@@ -385,7 +438,7 @@ async function loadHistory() {
 }
 
 // =========================
-// CẬP NHẬT REALTIME + MIN/MAX
+// CẬP NHẬT REALTIME
 // =========================
 async function fetchLatest() {
   try {
@@ -395,16 +448,18 @@ async function fetchLatest() {
 
     const time = formatTimeUTC7(data.timestamp);
 
-    // Hiển thị realtime
+    // Cập nhật realtime từng cảm biến
     document.getElementById("tempValue").textContent = data.temperature + " °C";
     document.getElementById("humValue").textContent = data.humidity + " %";
     document.getElementById("co2Value").textContent = data.co2 + " ppm";
-    document.getElementById("pm1Value").textContent = data.pm1_0 + " μg/m³";
-    document.getElementById("pm25Value").textContent = data.pm2_5 + " μg/m³";
-    document.getElementById("pm10Value").textContent = data.pm10 + " μg/m³";
     document.getElementById("noiseValue").textContent = data.noise + " dB";
 
-    // Update chart khi có bản ghi mới
+    // ✅ Cập nhật từng giá trị PM tức thời
+    document.getElementById("pm1Value").textContent = data.pm1_0;
+    document.getElementById("pm25Value").textContent = data.pm2_5;
+    document.getElementById("pm10Value").textContent = data.pm10;
+
+    // === Phần update chart như cũ ===
     if (data.timestamp !== lastTimestamp) {
       lastTimestamp = data.timestamp;
 
@@ -412,13 +467,10 @@ async function fetchLatest() {
         temperature: data.temperature,
         humidity: data.humidity,
         co2: data.co2,
-        pm1_0: data.pm1_0,
-        pm2_5: data.pm2_5,
-        pm10: data.pm10,
         noise: data.noise,
       };
 
-      for (let key in charts) {
+      for (let key in mapping) {
         if (charts[key]) {
           charts[key].data.labels.push(time);
           charts[key].data.datasets[0].data.push(mapping[key]);
@@ -429,9 +481,24 @@ async function fetchLatest() {
           charts[key].update();
         }
       }
+
+      // Chart PM gộp
+      if (charts.pm) {
+        charts.pm.data.labels.push(time);
+        charts.pm.data.datasets[0].data.push(data.pm1_0);
+        charts.pm.data.datasets[1].data.push(data.pm2_5);
+        charts.pm.data.datasets[2].data.push(data.pm10);
+
+        if (charts.pm.data.labels.length > 10) {
+          charts.pm.data.labels.shift();
+          charts.pm.data.datasets.forEach((ds) => ds.data.shift());
+        }
+
+        charts.pm.update();
+      }
     }
 
-    // Min/Max
+    // === Min/Max cập nhật liên tục ===
     const minmaxRes = await fetch("/api/sensors/minmax");
     const minmax = await minmaxRes.json();
 
@@ -441,14 +508,17 @@ async function fetchLatest() {
     document.getElementById("humMax").textContent = minmax.humidity.max + " %";
     document.getElementById("co2Min").textContent = minmax.co2.min + " ppm";
     document.getElementById("co2Max").textContent = minmax.co2.max + " ppm";
+    document.getElementById("noiseMin").textContent = minmax.noise.min + " dB";
+    document.getElementById("noiseMax").textContent = minmax.noise.max + " dB";
+
+    // ✅ PM Min/Max cập nhật liên tục
     document.getElementById("pm1Min").textContent = minmax.pm1.min + " μg/m³";
     document.getElementById("pm1Max").textContent = minmax.pm1.max + " μg/m³";
     document.getElementById("pm25Min").textContent = minmax.pm25.min + " μg/m³";
     document.getElementById("pm25Max").textContent = minmax.pm25.max + " μg/m³";
     document.getElementById("pm10Min").textContent = minmax.pm10.min + " μg/m³";
     document.getElementById("pm10Max").textContent = minmax.pm10.max + " μg/m³";
-    document.getElementById("noiseMin").textContent = minmax.noise.min + " dB";
-    document.getElementById("noiseMax").textContent = minmax.noise.max + " dB";
+
   } catch (err) {
     console.error("Fetch latest error:", err);
   }
@@ -459,4 +529,3 @@ async function fetchLatest() {
 // =========================
 loadHistory();
 setInterval(fetchLatest, 5000);
-

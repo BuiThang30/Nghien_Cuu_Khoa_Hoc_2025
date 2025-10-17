@@ -15,6 +15,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 db.run(`
   CREATE TABLE IF NOT EXISTS pi_data (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location_name TEXT,
     count INTEGER,
     time_green TEXT,
     time_red TEXT,
@@ -24,27 +25,28 @@ db.run(`
 
 // === API nhận dữ liệu từ ESP ===
 router.post("/data", (req, res) => {
-  const { count, time_green, time_red } = req.body;
+  const { location_name = "default", count, time_green, time_red } = req.body;
 
   if (count === undefined || !time_green || !time_red) {
     return res.status(400).json({ message: "Thiếu dữ liệu hoặc sai định dạng!" });
   }
 
   const query = `
-    INSERT INTO pi_data (count, time_green, time_red)
-    VALUES (?, ?, ?)
+    INSERT INTO pi_data (location_name, count, time_green, time_red)
+    VALUES (?, ?, ?, ?)
   `;
 
-  db.run(query, [count, time_green, time_red], function (err) {
+  db.run(query, [location_name, count, time_green, time_red], function (err) {
     if (err) {
       console.error("❌ Lỗi lưu dữ liệu:", err.message);
       return res.status(500).json({ message: "Lỗi khi lưu dữ liệu!" });
     }
 
-    console.log(`📥 ESP gửi -> count=${count}, green=${time_green}, red=${time_red}`);
+    console.log(`📥 ESP gửi -> ${location_name}: count=${count}, green=${time_green}, red=${time_red}`);
     res.json({ message: "✅ Lưu dữ liệu thành công!", id: this.lastID });
   });
 });
+
 
 // === API xem toàn bộ dữ liệu ===
 router.get("/select", (req, res) => {

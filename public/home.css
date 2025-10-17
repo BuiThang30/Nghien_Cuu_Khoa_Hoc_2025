@@ -520,6 +520,14 @@ body {
     font-size: 14px;
   }
 
+  #map{
+    height: 80vh;
+  }
+
+  .info-box{
+      transform: translate(-100px, -170%);
+  }
+
   .buttons button {
     height: 40px;
     font-size: 14px;

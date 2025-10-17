@@ -38,10 +38,6 @@ function register() {
 // BẢN ĐỒ GIAO THÔNG (Leaflet)
 // =========================
 
-// =========================
-// BẢN ĐỒ GIAO THÔNG (Leaflet)
-// =========================
-
 // ===== Danh sách các ngã tư =====
 const locations = [
   { name: "Ngã Tư Sở", lat: 21.003160, lng: 105.820216 },
@@ -66,7 +62,9 @@ L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 const markers = {};
-let infoBox; // box đang hiển thị hiện tại
+let infoBox = null;
+let currentLocation = defaultLocation;
+let currentData = [];
 
 // ===== Lấy dữ liệu từ API =====
 async function getPiData() {
@@ -80,46 +78,11 @@ async function getPiData() {
   }
 }
 
-// ===== Gắn marker và infoBox =====
-async function attachMarkers() {
-  const piData = await getPiData();
-
-  locations.forEach((loc) => {
-    const marker = L.marker([loc.lat, loc.lng])
-      .addTo(map)
-      .bindPopup(`<b>${loc.name}</b>`, {
-        autoClose: false,
-        closeOnClick: false,
-      });
-
-    markers[loc.name] = marker;
-
-    // === Sự kiện click để hiển thị infoBox ===
-    marker.on("click", () => {
-      map.flyTo([loc.lat, loc.lng], 18);
-      marker.openPopup();
-
-      // Xóa box cũ
-      if (infoBox) map.getPanes().overlayPane.removeChild(infoBox);
-
-      // Dữ liệu Pi tương ứng
-      const d = piData.find((item) => item.location_name === loc.name);
-      if (d) createInfoBox(loc, d);
-    });
-  });
-
-  // === Hiển thị box mặc định ngay khi load ===
-  const def = defaultLocation;
-  const defData = piData.find((d) => d.location_name === def.name);
-  if (defData) {
-    const defMarker = markers[def.name];
-    defMarker.openPopup();
-    createInfoBox(def, defData);
-  }
-}
-
-// ===== Hàm tạo infoBox =====
+// ===== Tạo hoặc cập nhật infoBox =====
 function createInfoBox(loc, d) {
+  // Xóa box cũ nếu có
+  if (infoBox) map.getPanes().overlayPane.removeChild(infoBox);
+
   infoBox = document.createElement("div");
   infoBox.className = "info-box";
   infoBox.innerHTML = `
@@ -130,11 +93,11 @@ function createInfoBox(loc, d) {
   `;
 
   const pos = map.latLngToLayerPoint([loc.lat, loc.lng]);
-  infoBox.style.left = `${pos.x + 25}px`; // dịch sang phải 1 chút
+  infoBox.style.left = `${pos.x + 25}px`;
   infoBox.style.top = `${pos.y - 40}px`;
   map.getPanes().overlayPane.appendChild(infoBox);
 
-  // Di chuyển theo map
+  // Giữ vị trí khi map di chuyển
   map.on("move", () => {
     const newPos = map.latLngToLayerPoint([loc.lat, loc.lng]);
     infoBox.style.left = `${newPos.x + 25}px`;
@@ -142,13 +105,64 @@ function createInfoBox(loc, d) {
   });
 }
 
+// ===== Khởi tạo marker =====
+async function attachMarkers() {
+  const piData = await getPiData();
+  currentData = piData;
+
+  locations.forEach((loc) => {
+    const marker = L.marker([loc.lat, loc.lng])
+      .addTo(map)
+      .bindPopup(`<b>${loc.name}</b>`, {
+        autoClose: false,
+        closeOnClick: false,
+      })
+      .openPopup(); // Mở popup mặc định cho tất cả
+
+    markers[loc.name] = marker;
+
+    // Khi click vào marker → đổi infoBox sang vị trí đó
+    marker.on("click", () => {
+      currentLocation = loc;
+      map.flyTo([loc.lat, loc.lng], 18);
+      marker.openPopup();
+
+      const d = piData.find((item) => item.location_name === loc.name);
+      if (d) createInfoBox(loc, d);
+    });
+  });
+
+  // Hiển thị infoBox mặc định ban đầu
+  const defData = piData.find((d) => d.location_name === defaultLocation.name);
+  if (defData) createInfoBox(defaultLocation, defData);
+}
+
+// ===== Cập nhật infoBox liên tục =====
+async function autoUpdate() {
+  if (!currentLocation) return;
+  const newData = await getPiData();
+
+  const d = newData.find(
+    (item) => item.location_name === currentLocation.name
+  );
+  if (d) {
+    currentData = newData;
+    createInfoBox(currentLocation, d);
+  }
+}
+
+// ===== Khởi tạo =====
 attachMarkers();
 
-// ===== Đảm bảo map resize đúng =====
+// Cập nhật mỗi 5 giây
+setInterval(autoUpdate, 5000);
+
+// Fix hiển thị map khi load
 setTimeout(() => {
   map.invalidateSize();
   map.setView([defaultLocation.lat, defaultLocation.lng], 18, { animate: false });
 }, 500);
+
 
 
 

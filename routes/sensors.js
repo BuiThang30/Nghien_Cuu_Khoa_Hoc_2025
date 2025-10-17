@@ -4,8 +4,9 @@ const { db } = require("../db");
 
 // --- Biến lưu dữ liệu sensor tạm thời ---
 let latestSensorData = {};
+let counter = 0;
 
-// --- API nhận dữ liệu cảm biến từ ESP ---
+// --- Nhận dữ liệu cảm biến từ ESP ---
 router.post("/data", (req, res) => {
   try {
     const {
@@ -41,8 +42,7 @@ router.post("/data", (req, res) => {
       timestamp: new Date().toISOString(),
     };
 
-    console.log("📥 Nhận dữ liệu cảm biến:", latestSensorData);
-
+    // --- Lưu vào database ---
     db.run(
       `INSERT INTO sensors(
         temperature, humidity, co2, pm1_0, pm2_5, pm10, noise
@@ -53,16 +53,23 @@ router.post("/data", (req, res) => {
           console.error("❌ Lỗi khi lưu dữ liệu:", err.message);
           return res.status(500).json({ error: err.message });
         }
-        console.log(`✅ Đã lưu bản ghi ID: ${this.lastID}`);
+
+        counter++;
+
+        if (counter % 10 === 0) {
+          console.log(`Đã nhận ${counter} gói dữ liệu (in mỗi 10 lần):`);
+          console.log("Dữ liệu mới nhất:", latestSensorData);
+        }
+
         res.json({
-          message: "✅ Dữ liệu đã được nhận và lưu thành công",
+          message: "Dữ liệu đã được nhận và lưu thành công",
+          count: counter,
           id: this.lastID,
-          data: latestSensorData,
         });
       }
     );
   } catch (error) {
-    console.error("❌ JSON lỗi:", error.message);
+    console.error("JSON lỗi:", error.message);
     res.status(400).json({ error: "Invalid JSON format" });
   }
 });

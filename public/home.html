@@ -22,6 +22,20 @@
         </div>
       </div>
     </nav>
+
+
+    <div class="sidebar" id="sidebar">
+      <div class="toggle-btn" id="toggleBtn">
+        <img src="image/Polygon 1.svg" alt="arrow" />
+      </div>
+      <div class="menu">
+        <a style="border-top: 1px solid #4db5ff;  margin-top: 80px;" href="#Temperature">Nhiệt độ</a>
+        <a href="#Humidity">Độ ẩm</a>
+        <a href="#CO2">CO2</a>
+        <a href="#PM">Bụi min</a>
+        <a href="#Noise">Tiếng ồn</a>
+      </div>
+    </div>
     <!-- content -->
     <div class="container">
       <div id="map"></div>
@@ -62,7 +76,7 @@
       <!--Parameter-->
       <div id="chart" class="parameter">
         <!-- Temperature -->
-        <div class="box" style="padding-top: 5px;">
+        <div id="Temperature" class="box" style="padding-top: 5px;">
           <div class="card">
             <div class="left">
               <h3 class="title">Temperature</h3>
@@ -82,7 +96,7 @@
         </div>
 
         <!-- Humidity -->
-        <div class="box">
+        <div id="Humidity" class="box">
           <div class="card">
             <div class="left">
               <h3 class="title">Humidity</h3>
@@ -102,7 +116,7 @@
         </div>
 
         <!-- CO2 -->
-        <div class="box">
+        <div id="CO2" class="box">
           <div class="card">
             <div class="left">
               <h3 class="title">CO2</h3>
@@ -122,7 +136,7 @@
         </div>
 
         <!-- PM Combined -->
-        <div class="box">
+        <div id="PM" class="box">
           <div class="card">
             <div class="left">
               <h3 class="title">Particulate Matter</h3>
@@ -149,7 +163,7 @@
         </div>
 
         <!-- Noise -->
-        <div class="box">
+        <div id="Noise" class="box">
           <div class="card">
             <div class="left">
               <h3 class="title">NOISE</h3>

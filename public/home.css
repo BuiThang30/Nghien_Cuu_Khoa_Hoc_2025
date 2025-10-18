@@ -81,14 +81,94 @@ body {
 }
 
 
+/* ===== Thanh menu ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: width 0.3s ease;
+  z-index: 2000;
+  margin-top: 60px;
+  display: flex;
+}
+
+/* Khi hover thì mở rộng */
+.sidebar:hover {
+  width: 180px;
+}
+
+/* ===== Nút mũi tên ===== */
+.toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  transform: translateY(-50%);
+  background-color: #ffffff;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn img {
+  width: 25px;
+  transition: transform 0.3s ease;
+}
+
+/* Khi hover vào sidebar thì xoay mũi tên */
+.sidebar:hover .toggle-btn img {
+  transform: rotate(180deg);
+}
+
+/* ===== Danh sách menu ===== */
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 3px solid #4db5ff;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #2196f3;
+  font-weight: 600;
+  width: 120px;
+  padding: 10px 0;
+  margin: 0 10px;
+  text-align: center;
+  border-bottom: 1px solid #4db5ff;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Khi hover thì hiện chữ */
+.sidebar:hover .menu a {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
 /* --- FIX MAP ĐÈ MENU --- */
 .leaflet-container {
   z-index: 1 !important;
 }
 
 #control,
-#chart {
-  scroll-margin-top: 70px;
+#chart,
+#Temperature,
+#Humidity,
+#CO2,
+#PM,
+#Noise {
+  scroll-margin-top: 65px;
 }
 
 .container {

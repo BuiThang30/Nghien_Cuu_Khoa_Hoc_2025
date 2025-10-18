@@ -132,18 +132,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-right: 3px solid #4db5ff;
+  border-right: 3px solid #4AADFF;
 }
 
 .menu a {
   text-decoration: none;
-  color: #2196f3;
+  color: #3089FF;
   font-weight: 600;
   width: 120px;
   padding: 10px 0;
   margin: 0 10px;
   text-align: center;
-  border-bottom: 1px solid #4db5ff;
+  border-bottom: 1px solid #4AADFF;
   opacity: 0;
   transform: translateX(-10px);
   transition: opacity 0.3s, transform 0.3s;

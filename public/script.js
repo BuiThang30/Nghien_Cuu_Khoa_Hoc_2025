@@ -341,10 +341,10 @@ function formatTimeUTC7(timestamp) {
 // KHỞI TẠO BIỂU ĐỒ
 // =========================
 const charts = {
-  temperature: createChart("chartTemp", "Temperature (°C)", "rgba(255,99,132,1)", 0, 40),
-  humidity: createChart("chartHumidity", "Humidity (%)", "rgba(54,162,235,1)", 0, 100),
+  temperature: createChart("chartTemp", "Nhiệt độ (°C)", "rgba(255,99,132,1)", 0, 40),
+  humidity: createChart("chartHumidity", "Độ ẩm (%)", "rgba(54,162,235,1)", 0, 100),
   co2: createChart("chartCO2", "CO₂ (ppm)", "rgba(0,200,0,1)", 300, 2000),
-  noise: createChart("chartNOISE", "NOISE (dB)", "rgba(255,159,64,1)", -120, 0),
+  noise: createChart("chartNOISE", "Tiếng ồn (dB)", "rgba(255,159,64,1)", -120, 0),
 
   // Chart gộp PM
   pm: (() => {

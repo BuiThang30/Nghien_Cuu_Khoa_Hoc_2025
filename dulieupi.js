@@ -7,7 +7,7 @@ const db = new sqlite3.Database("./database.db");
 
 // Danh sách địa điểm (giống trong front-end)
 const locations = [
-  { name: "Ngã Tư Sở" },
+  { name: "Cầu Vượt Phạm Ngọc Thạch" },
   { name: "Ngã Tư Viện Nhi" },
   { name: "Ngã Tư Cầu Giấy" },
   { name: "Ngã Tư Kim Mã" },

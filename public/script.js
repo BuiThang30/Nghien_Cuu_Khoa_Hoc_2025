@@ -39,8 +39,9 @@ function register() {
 // =========================
 
 // ===== Danh sách các ngã tư =====
+
 const locations = [
-  { name: "Ngã Tư Sở", lat: 21.003160, lng: 105.820216 },
+  { name: "Cầu Vượt Phạm Ngọc Thạch", lat: 21.008362, lng: 105.833848 },
   { name: "Ngã Tư Viện Nhi", lat: 21.026209, lng: 105.810259 },
   { name: "Ngã Tư Cầu Giấy", lat: 21.030024, lng: 105.801724 },
   { name: "Ngã Tư Kim Mã", lat: 21.030298, lng: 105.812933 },

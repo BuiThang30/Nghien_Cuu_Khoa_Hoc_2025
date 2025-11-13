@@ -2,10 +2,10 @@
 // LOGIN / REGISTER
 // =========================
 function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const username = document.getElementById("username")?.value.trim();
+  const password = document.getElementById("password")?.value.trim();
 
-  if (username === "" || password === "") {
+  if (!username || !password) {
     alert("Vui lòng nhập đầy đủ thông tin!");
   } else {
     window.location.href = "/home";
@@ -15,6 +15,59 @@ function login() {
 function register() {
   window.location.href = "/register";
 }
+
+// =========================
+// XỬ LÝ TẠO TÀI KHOẢN MỚI
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  if (!form) return; // nếu không có form thì dừng ở đây (tránh lỗi)
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const inputs = document.querySelectorAll("input");
+    if (inputs.length < 6) {
+      alert("Thiếu trường nhập liệu trong form!");
+      return;
+    }
+
+    const first_name = inputs[0].value.trim();
+    const last_name = inputs[1].value.trim();
+    const username = document.querySelector("#username").value.trim();
+    const email = inputs[3].value.trim();
+    const password = inputs[4].value.trim();
+    const confirm_password = inputs[5].value.trim();
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name,
+          last_name,
+          username,
+          email,
+          password,
+          confirm_password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Đăng ký thành công!");
+        window.location.href = "/login";
+      } else {
+        alert("⚠️ " + (data.error || "Lỗi không xác định!"));
+      }
+    } catch (err) {
+      console.error("Lỗi:", err);
+      alert("Không thể kết nối đến máy chủ");
+    }
+  });
+});
+
 
 // =========================
 // NAV TOGGLE
@@ -41,13 +94,13 @@ function register() {
 // ===== Danh sách các ngã tư =====
 
 const locations = [
-  { name: "Cầu Vượt Phạm Ngọc Thạch", lat: 21.008362, lng: 105.833848 },
-  { name: "Ngã Tư Viện Nhi", lat: 21.026209, lng: 105.810259 },
-  { name: "Ngã Tư Cầu Giấy", lat: 21.030024, lng: 105.801724 },
-  { name: "Ngã Tư Kim Mã", lat: 21.030298, lng: 105.812933 },
-  { name: "Ngã Tư Nguyễn Chí Thanh", lat: 21.019907, lng: 105.808252 },
-  { name: "Ngã Tư Trung Kính", lat: 21.014273, lng: 105.795668 },
-  { name: "Ngã Tư Chùa Bộc", lat: 21.009353, lng: 105.824337 },
+  { name: "Cầu Vượt Phạm Ngọc Thạch", lat: 21.008362, lng: 105.833848, image: "image/anhtest.png"},
+  { name: "Ngã Tư Viện Nhi", lat: 21.026209, lng: 105.810259, image: "image/anhtest.png" },
+  { name: "Ngã Tư Cầu Giấy", lat: 21.030024, lng: 105.801724, image: "image/anhtest.png" },
+  { name: "Ngã Tư Kim Mã", lat: 21.030298, lng: 105.812933, image: "image/anhtest.png" },
+  { name: "Ngã Tư Nguyễn Chí Thanh", lat: 21.019907, lng: 105.808252, image: "image/anhtest.png" },
+  { name: "Ngã Tư Trung Kính", lat: 21.014273, lng: 105.795668, image: "image/anhtest.png" },
+  { name: "Ngã Tư Chùa Bộc", lat: 21.009353, lng: 105.824337, image: "image/anhtest.png" },
 ];
 
 // ===== Khởi tạo bản đồ =====
@@ -106,6 +159,53 @@ function createInfoBox(loc, d) {
   });
 }
 
+
+// ===== Hiển thị ảnh dưới info-box =====
+let currentImage = null;
+
+function showLocationImage(loc) {
+  // Xóa ảnh cũ nếu có
+  if (currentImage) {
+    currentImage.remove();
+    currentImage = null;
+  }
+
+  // Nếu không có ảnh thì bỏ qua
+  if (!loc.image) return;
+
+  const img = document.createElement("img");
+  img.src = loc.image;
+  img.alt = loc.name;
+  img.className = "location-image";
+
+  const pos = map.latLngToLayerPoint([loc.lat, loc.lng]);
+  img.style.left = `${pos.x + 50}px`;
+  img.style.top = `${pos.y + 10}px`;
+
+  map.getPanes().overlayPane.appendChild(img);
+  currentImage = img;
+}
+
+// ===== Xóa ảnh khi zoom hoặc pan =====
+let mapJustInitialized = true;
+
+map.on("zoom move", () => {
+  if (mapJustInitialized) return;
+  const zoomLevel = map.getZoom();
+  if (currentImage) {
+    if (zoomLevel < 18.5) {
+      currentImage.remove();
+      currentImage = null;
+    }
+
+    if (zoomLevel > 17.5) {
+      currentImage.remove();
+      currentImage = null;
+    }
+  }
+});
+
+
 // ===== Khởi tạo marker =====
 async function attachMarkers() {
   const piData = await getPiData();
@@ -118,24 +218,37 @@ async function attachMarkers() {
         autoClose: false,
         closeOnClick: false,
       })
-      .openPopup(); // Mở popup mặc định cho tất cả
+      .openPopup();
 
     markers[loc.name] = marker;
 
-    // Khi click vào marker → đổi infoBox sang vị trí đó
+
     marker.on("click", () => {
       currentLocation = loc;
       map.flyTo([loc.lat, loc.lng], 18);
       marker.openPopup();
 
       const d = piData.find((item) => item.location_name === loc.name);
-      if (d) createInfoBox(loc, d);
+      if (d) {
+        createInfoBox(loc, d);
+        map.once("moveend", () => {
+          showLocationImage(loc);
+        });
+      }
     });
   });
 
   // Hiển thị infoBox mặc định ban đầu
-  const defData = piData.find((d) => d.location_name === defaultLocation.name);
-  if (defData) createInfoBox(defaultLocation, defData);
+  map.whenReady(() => {
+    const defData = piData.find((d) => d.location_name === defaultLocation.name);
+    if (defData) {
+      createInfoBox(defaultLocation, defData);
+      setTimeout(() => {
+        showLocationImage(defaultLocation);
+      }, 300);
+    }
+  });
+
 }
 
 // ===== Cập nhật infoBox liên tục =====
@@ -149,6 +262,7 @@ async function autoUpdate() {
   if (d) {
     currentData = newData;
     createInfoBox(currentLocation, d);
+    // showLocationImage(currentLocation);
   }
 }
 
@@ -162,10 +276,16 @@ setInterval(autoUpdate, 5000);
 setTimeout(() => {
   map.invalidateSize();
   map.setView([defaultLocation.lat, defaultLocation.lng], 18, { animate: false });
+
+  setTimeout(() => {
+    const defData = currentData.find(d => d.location_name === defaultLocation.name);
+    if (defData) {
+      createInfoBox(defaultLocation, defData);
+      showLocationImage(defaultLocation);
+    }
+    mapJustInitialized = false;
+  }, 300);
 }, 500);
-
-
-
 
 // --- Gợi ý tìm kiếm ---
 const searchInput = document.getElementById("searchInput");
@@ -205,9 +325,17 @@ function selectLocation(loc) {
   suggestionList.style.display = "none";
   map.flyTo([loc.lat, loc.lng], 18);
   markers[loc.name].openPopup();
+
+  const d = currentData.find(item => item.location_name === loc.name);
+  if (d) {
+    createInfoBox(loc, d);
+    showLocationImage(loc);
+  }
+
   loadData(loc.name);
   scrollToMap();
 }
+
 
 function scrollToMap() {
   const mapElement = document.getElementById("map");

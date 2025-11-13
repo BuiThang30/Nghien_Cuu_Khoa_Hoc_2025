@@ -214,6 +214,18 @@ body {
 .green { background: #00c853; }
 .red { background: #d50000; }
 
+
+.location-image {
+  position: absolute;
+  width: 300px;
+  height: auto;
+  border-radius: 10px;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
 .controls {
   display: flex;
   align-items: stretch;

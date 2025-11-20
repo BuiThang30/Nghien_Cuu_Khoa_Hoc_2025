@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const navContainer = document.getElementById("nav-container");
   const navLinks = navContainer.querySelectorAll("a");
 
+
   menuToggle.addEventListener("click", () => {
     navContainer.classList.toggle("active");
   });
@@ -386,29 +387,44 @@ function loadData(location) {
   }
 }
 
-document.getElementById("saveBtn").addEventListener("click", () => {
-  const location = getCurrentLocationName();
-  if (!location) return alert("Vui lòng chọn địa điểm!");
-  const data = {
-    red: document.getElementById("redTime").value,
-    yellow: document.getElementById("yellowTime").value,
-    green: document.getElementById("greenTime").value,
-  };
-  localStorage.setItem(location, JSON.stringify(data));
-  alert("Đã lưu thời gian cho " + location);
+document.addEventListener("DOMContentLoaded", () => {
+
+  const saveBtn = document.getElementById("saveBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      const location = getCurrentLocationName();
+      if (!location) return alert("Vui lòng chọn địa điểm!");
+
+      const data = {
+        red: document.getElementById("redTime").value,
+        yellow: document.getElementById("yellowTime").value,
+        green: document.getElementById("greenTime").value,
+      };
+      localStorage.setItem(location, JSON.stringify(data));
+      alert("Đã lưu thời gian cho " + location);
+    });
+  }
+
+  const editBtn = document.getElementById("editBtn");
+  if (editBtn && saveBtn) {
+    editBtn.addEventListener("click", () => saveBtn.click());
+  }
+
+  const deleteBtn = document.getElementById("deleteBtn");
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", () => {
+      const location = getCurrentLocationName();
+      if (!location) return;
+
+      localStorage.removeItem(location);
+      loadData(location);
+      alert("Đã xóa dữ liệu của " + location);
+    });
+  }
+
 });
 
-document.getElementById("editBtn").addEventListener("click", () => {
-  document.getElementById("saveBtn").click();
-});
 
-document.getElementById("deleteBtn").addEventListener("click", () => {
-  const location = getCurrentLocationName();
-  if (!location) return;
-  localStorage.removeItem(location);
-  loadData(location);
-  alert("Đã xóa dữ liệu của " + location);
-});
 
 // Giới hạn chỉ nhập số
 document.querySelectorAll("#redTime, #yellowTime, #greenTime").forEach((input) => {

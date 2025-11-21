@@ -197,9 +197,7 @@ map.on("zoom move", () => {
     if (zoomLevel < 18.5) {
       currentImage.remove();
       currentImage = null;
-    }
-
-    if (zoomLevel > 17.5) {
+    }else if (zoomLevel > 17.5) {
       currentImage.remove();
       currentImage = null;
     }

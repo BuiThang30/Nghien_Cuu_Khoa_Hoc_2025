@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCKH-2025</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="menu-toggle" id="mobile-menu">&#9776;</div>
+      <div class="nav-container" id="nav-container">
+        <div class="nav-left">
+          <a href="#">Trang chủ</a>
+          <a href="#control">Điều khiển</a>
+          <a href="#chart">Biểu đồ</a>
+        </div>
+        <div class="nav-right">
+          <a href="/login">Đăng xuất</a>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="sidebar" id="sidebar">
+      <div class="toggle-btn" id="toggleBtn">
+        <img src="image/Polygon 1.svg" alt="arrow" />
+      </div>
+      <div class="menu">
+        <a style="border-top: 1px solid #4db5ff;  margin-top: 80px;" href="#Temperature">Nhiệt độ</a>
+        <a href="#Humidity">Độ ẩm</a>
+        <a href="#CO2">CO2</a>
+        <a href="#PM">Bụi min</a>
+        <a href="#Noise">Tiếng ồn</a>
+      </div>
+    </div>
+    <!-- content -->
+    <div class="container">
+      <div id="map"></div>
+
+      <div class="controls" id="control">
+        <!-- Cột đèn + input -->
+        <div class="lights">
+          <div class="light-row">
+            <div class="light red"></div>
+            <input id="redTime" type="text" />
+          </div>
+          <div class="light-row">
+            <div class="light yellow"></div>
+            <input id="yellowTime" type="text"/>
+          </div>
+          <div class="light-row">
+            <div class="light green"></div>
+            <input id="greenTime" type="text" />
+          </div>
+        </div>
+
+        <div class="buttons">
+          <!-- <button id="saveBtn">Lưu</button>
+          <button id="editBtn">Sửa</button>
+          <button id="deleteBtn">Xóa</button> -->
+          <button>Lưu</button>
+          <button>Sửa</button>
+          <button>Xóa</button>
+        </div>
+
+        <div class="search">
+          <label for="searchInput">Tìm kiếm</label>
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="Nhập tên địa điểm..." />
+            <div id="suggestionList" class="suggestions"></div>
+            <button id="confirmBtn" onclick="confirmbtn()">Xác nhận</button>
+          </div>
+        </div>
+      </div>
+
+      <!--Parameter-->
+      <div id="chart" class="parameter">
+        <!-- Temperature -->
+        <div id="Temperature" class="box" style="padding-top: 5px;">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">Nhiệt độ</h3>
+              <h1 id="tempValue" class="temp">-- °C</h1>
+              <p id="statusTemp" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartTemp"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="tempMax">-- °C</span></p>
+              <p>Min <span id="tempMin">-- °C</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Humidity -->
+        <div id="Humidity" class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">Độ ẩm</h3>
+              <h1 id="humValue" class="temp">-- %</h1>
+              <p id="statusHumidity" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartHumidity"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="humMax">-- %</span></p>
+              <p>Min <span id="humMin">-- %</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CO2 -->
+        <div id="CO2" class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">CO2</h3>
+              <h1 id="co2Value" class="temp">-- PPM</h1>
+              <p id="statusCO2" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartCO2"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="co2Max">-- PPM</span></p>
+              <p>Min <span id="co2Min">-- PPM</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PM Combined -->
+        <div id="PM" class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">Bụi mịn</h3>
+
+              <div id="pmValues" class="pm-values">
+                <p style="color: rgba(75,192,192,1);">PM1.0: <span id="pm1Value">--</span> μg/m³</p>
+                <p style="color: rgba(153,102,255,1);">PM2.5: <span id="pm25Value">--</span> μg/m³</p>
+                <p style="color: rgba(255,159,64,1);">PM10: <span id="pm10Value">--</span> μg/m³</p>
+              </div>
+
+              <p id="statusPM" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartPM"></canvas>
+            </div>
+
+            <div class="right">
+              <p>PM1.5: Min <span id="pm1Min">--</span>ㅤMax <span id="pm1Max">--</span></p>
+              <p>PM2.5: Min <span id="pm25Min">--</span>ㅤMax <span id="pm25Max">--</span></p>
+              <p>PM10: Min <span id="pm10Min">--</span>ㅤMax <span id="pm10Max">--</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Noise -->
+        <div id="Noise" class="box">
+          <div class="card">
+            <div class="left">
+              <h3 class="title">Tiếng ồn</h3>
+              <h1 id="noiseValue" class="temp">-- dB</h1>
+              <p id="statusNoise" class="status">--</p>
+            </div>
+
+            <div class="center">
+              <canvas id="chartNOISE"></canvas>
+            </div>
+
+            <div class="right">
+              <p>Max <span id="noiseMax">-- dB</span></p>
+              <p>Min <span id="noiseMin">-- dB</span></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script>
+      if (!localStorage.getItem("isLogin")) {
+        window.location.href = "/login";
+      }
+
+      window.addEventListener("beforeunload", () => {
+        navigator.sendBeacon("/api/logout");
+      });
+    </script>
+  </body>
+</html>

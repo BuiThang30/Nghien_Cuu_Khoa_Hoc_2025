@@ -28,6 +28,7 @@ const pidataRoutes = require("./routes/pidata");
 const mailRoutes = require("./routes/mail");
 const loginRoutes = require("./routes/login");
 const registerRoutes = require("./routes/register");
+const imageRoutes = require("./routes/image");
 
 // Gắn route API
 app.use("/api/sensors", sensorsRoutes);
@@ -35,6 +36,7 @@ app.use("/api/pidata", pidataRoutes);
 app.use("/api/login", loginRoutes);
 app.use("/api/mail", mailRoutes);
 app.use("/api/register", registerRoutes);
+app.use("/api/image", imageRoutes);
 
 app.post("/api/logout", (req, res) => {
   req.session.destroy((err) => {

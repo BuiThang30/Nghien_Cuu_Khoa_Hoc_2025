@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const sqlite3 = require("sqlite3").verbose();
 
-// ✅ thêm dòng này
+// thêm dòng này
 const db = new sqlite3.Database("./database.db");
 
 router.post("/", (req, res) => {
@@ -31,7 +31,7 @@ router.post("/", (req, res) => {
         return res.json({ success: false, error: "Sai mật khẩu!" });
       }
 
-      // ✅ lưu session
+      // lưu session
       req.session.user = {
         id: user.id,
         username: user.username,
